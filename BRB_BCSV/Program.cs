@@ -4,6 +4,8 @@ using System.Runtime.Intrinsics.Arm;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
 using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace BRB_BCSV
 {
@@ -32,6 +34,11 @@ namespace BRB_BCSV
             {
                 EntryCount = reader.ReadUInt(Endian.Big);
                 Type = (BCSVType)reader.ReadUInt(Endian.Big);
+                XmlDocument doc = new XmlDocument();
+                var element1 = doc.CreateElement("Captions");
+                XmlAttribute typeAttr;
+                element1.SetAttribute("Type",Type.ToString());
+                doc.AppendChild(element1); 
                 if (Type == BCSVType.Strings)
                 {
                     field_08 = reader.ReadInt(Endian.Big);
@@ -56,10 +63,21 @@ namespace BRB_BCSV
                         string converted = Encoding.BigEndianUnicode.GetString(v);
                         Text[i] = converted;
                     }
+
                     for (int i = 0; i < EntryCount; i++)
                     {
                         Console.WriteLine("Entry: {0}, Offset: {1}\n\t {2}", Name[i], StringOffset[i].ToString("X8"), Text[i]);
+                        var capElement = doc.CreateElement("Caption");
+                        XmlAttribute attr;
+                        if (Name[i] == null)
+                            capElement.SetAttribute("Hash", NameHash[i].ToString("X8"));
+                        else
+                            capElement.SetAttribute("Name", Name[i]);
+                        var captext = doc.CreateTextNode(Text[i]);
+                        capElement.AppendChild(captext);
+                        element1.AppendChild(capElement);
                     }
+                    doc.Save(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + "\\strings.xml");
                 }
                 else if (Type == BCSVType.Cutscene)
                 {
@@ -87,7 +105,18 @@ namespace BRB_BCSV
                     for (int i = 0; i < EntryCount; i++)
                     {
                         Console.WriteLine("Entry: {0}\n {1} - {2}", Name[i], FrameStart[i], FrameEnd[i]);
+                        var capElement = doc.CreateElement("Caption");
+                        XmlAttribute attr;
+                        if (Name[i] == null)
+                             capElement.SetAttribute("Hash", NameHash[i].ToString("X8"));
+                        else capElement.SetAttribute("Name", Name[i]);
+
+                        capElement.SetAttribute("FrameStart", FrameStart[i].ToString());
+                        capElement.SetAttribute("FrameEnd", FrameEnd[i].ToString());
+                        element1.AppendChild(capElement);
                     }
+                    var outname = "\\" + Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[1]) + ".xml";
+                    doc.Save(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + outname);
                 }
                 
             }
@@ -96,7 +125,7 @@ namespace BRB_BCSV
         public string CheckHash(uint _hash)
         {
             uint hash;
-            string correctLine = "";
+            string correctLine = null;
             string[] lines = File.ReadAllLines(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]) + "\\StringList.txt");
             foreach (string line in lines)
             {
@@ -106,8 +135,6 @@ namespace BRB_BCSV
                     correctLine = line;
                     break;
                 }
-                else correctLine = _hash.ToString("X8");
-
             }
             return correctLine;
         }
