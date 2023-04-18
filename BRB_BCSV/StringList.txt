@@ -1,0 +1,7 @@
+Sounds:vo_cinematics:CIN_00005_1_Knuckles_x_x_Gimme-a-sec
+Sounds:vo_cinematics:CIN_00006_1_Knuckles_x_x_Im-on-it
+Sounds:vo_cinematics:CIN_00076_1_Amy_x_x_Cliff-Thank
+Sounds:vo_cinematics:CIN_00078_1_Amy_x_x_What-do-you
+Sounds:vo_cinematics:CIN_00080_1_Amy_x_x_DRY-Well
+ui_TUM_Co-OpDamageTitle
+ui_TUM_Co-OpDamageTitle_Ult
