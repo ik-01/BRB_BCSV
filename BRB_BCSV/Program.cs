@@ -43,7 +43,6 @@ namespace BRB_BCSV
                 {
                     field_08 = reader.ReadInt(Endian.Big);
                     field_0C = reader.ReadInt(Endian.Big);
-                    Console.WriteLine("Entries: {0}\nType: {1}\nfield_08: {2}\nfield_0C: {3}", EntryCount, Type, field_08, field_0C);
                     for (int i = 0; i < EntryCount; i++)
                     {
                         NameHash.Add(new uint());
@@ -63,10 +62,8 @@ namespace BRB_BCSV
                         string converted = Encoding.BigEndianUnicode.GetString(v);
                         Text[i] = converted;
                     }
-
                     for (int i = 0; i < EntryCount; i++)
                     {
-                        Console.WriteLine("Entry: {0}, Offset: {1}\n\t {2}", Name[i], StringOffset[i].ToString("X8"), Text[i]);
                         var capElement = doc.CreateElement("Caption");
                         XmlAttribute attr;
                         if (Name[i] == null)
@@ -84,7 +81,6 @@ namespace BRB_BCSV
                     field_08 = reader.ReadInt(Endian.Big);
                     field_0C = reader.ReadInt(Endian.Big);
                     field_10 = reader.ReadInt(Endian.Big);
-                    Console.WriteLine("Entries: {0}\nType: {1}\nfield_08: {2}\nfield_0C: {3}\nfield_10: {4}", EntryCount, Type, field_08, field_0C, field_10);
                     for (int i = 0; i < EntryCount; i++)
                     {
                         FrameStart.Add(new uint());
@@ -104,7 +100,6 @@ namespace BRB_BCSV
                     }
                     for (int i = 0; i < EntryCount; i++)
                     {
-                        Console.WriteLine("Entry: {0}\n {1} - {2}", Name[i], FrameStart[i], FrameEnd[i]);
                         var capElement = doc.CreateElement("Caption");
                         XmlAttribute attr;
                         if (Name[i] == null)
@@ -121,6 +116,53 @@ namespace BRB_BCSV
                 
             }
             
+        }
+        public void WriteBCSV(string filename)
+        {
+            
+            XmlDocument doc = new XmlDocument();
+            doc.Load(filename);
+            var root = doc.DocumentElement;
+            var typeAttr = root.GetAttribute("Type");
+            int count = root.SelectNodes("Caption").Count;
+            var outname = "\\" + Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[1]) + ".bcsv";
+            using (NativeWriter writer = new(new FileStream(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + outname, FileMode.Create)))
+            {
+                writer.Write(count, Endian.Big);
+                if (typeAttr == BCSVType.Strings.ToString())
+                {
+                    // TODO: MAKE STRINGS.BCSV EXPORTER
+                }
+                else if (typeAttr == BCSVType.Cutscene.ToString())
+                {
+                    writer.Write((int)BCSVType.Cutscene, Endian.Big);
+                    writer.Write(2, Endian.Big);
+                    writer.Write(2, Endian.Big);
+                    writer.Write(1, Endian.Big);
+                    var capElement = root.GetElementsByTagName("Caption");
+                    for (int i = 0; i < count; i++) 
+                    {
+                        XmlElement elem = (XmlElement)capElement[i];
+                        if (elem.HasAttribute("FrameStart"))
+                            writer.Write(Int32.Parse(elem.Attributes["FrameStart"].Value), Endian.Big);
+                    }
+                    for (int i = 0; i < count; i++)
+                    {
+                        XmlElement elem = (XmlElement)capElement[i];
+                        if (elem.HasAttribute("FrameEnd"))
+                            writer.Write(Int32.Parse(elem.Attributes["FrameEnd"].Value), Endian.Big);
+                    }
+                    for (int i = 0; i < count; i++)
+                    {
+                        XmlElement elem = (XmlElement)capElement[i];
+                        if (elem.HasAttribute("Hash") && !elem.HasAttribute("Name"))
+                            writer.Write(Int32.Parse(elem.Attributes["Hash"].Value, System.Globalization.NumberStyles.HexNumber), Endian.Big);
+                        else if (!elem.HasAttribute("Hash") && elem.HasAttribute("Name"))
+                            writer.Write(CRC32.Compute(elem.Attributes["Name"].Value), Endian.Big);
+                    }
+                }
+                writer.Close();
+            }
         }
         public string CheckHash(uint _hash)
         {
@@ -149,8 +191,12 @@ namespace BRB_BCSV
             //  Invoke this sample with an arbitrary set of command line arguments.
             string[] arguments = Environment.GetCommandLineArgs();
             Console.WriteLine("{0}\n", string.Join(", ", arguments[1]));
-
-            bcsv.ReadBCSV(arguments[1]);
+            var extension = Path.GetExtension(arguments[1]);
+            if (extension == ".bcsv")
+                bcsv.ReadBCSV(arguments[1]);
+            else if (extension == ".xml")
+                bcsv.WriteBCSV(arguments[1]);
+            Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
         }
     }
