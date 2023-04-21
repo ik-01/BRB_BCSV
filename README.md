@@ -1,5 +1,5 @@
 # BRB_BCSV
- Tool for editing Sonic Boom: Rise or Lyric localization files
+ Tool for converting Sonic Boom: Rise or Lyric localization files to .xml and vice versa.
  
 ## Credits
 
