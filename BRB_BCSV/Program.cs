@@ -73,7 +73,8 @@ namespace BRB_BCSV
                         capElement.AppendChild(captext);
                         element1.AppendChild(capElement);
                     }
-                    doc.Save(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + "\\strings.xml");
+                    var outname = "\\" + Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[1]) + ".xml";
+                    doc.Save(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + outname);
                 }
                 else if (Type == BCSVType.Cutscene)
                 {
