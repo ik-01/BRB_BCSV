@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection.PortableExecutable;
 using System.Text;
 
 namespace BRB_BCSV
@@ -252,6 +253,24 @@ namespace BRB_BCSV
 
                 sb.Append(c);
             }
+        }
+
+        public string ReadBigEndianUnicodeString()
+        {
+            var chars = new List<byte>();
+
+            while (true)
+            {
+                byte b1 = ReadByte();
+                byte b2 = ReadByte();
+                if (b1 == 0 && b2 == 0)
+                    break;
+                
+                chars.Add(b1);
+                chars.Add(b2);
+            }
+
+            return Encoding.BigEndianUnicode.GetString(chars.ToArray());
         }
 
         public string ReadSizedString(int strLen)

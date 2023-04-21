@@ -6,11 +6,12 @@ using System.Text;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace BRB_BCSV
 {
     public enum BCSVType : int
-    { 
+    {
         Strings = 0x2,
         Cutscene = 0x3
     }
@@ -37,8 +38,8 @@ namespace BRB_BCSV
                 XmlDocument doc = new XmlDocument();
                 var element1 = doc.CreateElement("Captions");
                 XmlAttribute typeAttr;
-                element1.SetAttribute("Type",Type.ToString());
-                doc.AppendChild(element1); 
+                element1.SetAttribute("Type", Type.ToString());
+                doc.AppendChild(element1);
                 if (Type == BCSVType.Strings)
                 {
                     field_08 = reader.ReadInt(Endian.Big);
@@ -58,9 +59,7 @@ namespace BRB_BCSV
                     for (int i = 0; i < EntryCount; i++)
                     {
                         Text.Add(new string(""));
-                        byte[] v = Encoding.Unicode.GetBytes(reader.ReadNullTerminatedWideString());
-                        string converted = Encoding.BigEndianUnicode.GetString(v);
-                        Text[i] = converted;
+                        Text[i] = reader.ReadBigEndianUnicodeString();
                     }
                     for (int i = 0; i < EntryCount; i++)
                     {
@@ -103,7 +102,7 @@ namespace BRB_BCSV
                         var capElement = doc.CreateElement("Caption");
                         XmlAttribute attr;
                         if (Name[i] == null)
-                             capElement.SetAttribute("Hash", NameHash[i].ToString("X8"));
+                            capElement.SetAttribute("Hash", NameHash[i].ToString("X8"));
                         else capElement.SetAttribute("Name", Name[i]);
 
                         capElement.SetAttribute("FrameStart", FrameStart[i].ToString());
@@ -113,13 +112,13 @@ namespace BRB_BCSV
                     var outname = "\\" + Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[1]) + ".xml";
                     doc.Save(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + outname);
                 }
-                
+
             }
-            
+
         }
         public void WriteBCSV(string filename)
         {
-            
+
             XmlDocument doc = new XmlDocument();
             doc.Load(filename);
             var root = doc.DocumentElement;
@@ -131,7 +130,32 @@ namespace BRB_BCSV
                 writer.Write(count, Endian.Big);
                 if (typeAttr == BCSVType.Strings.ToString())
                 {
-                    // TODO: MAKE STRINGS.BCSV EXPORTER
+                    writer.Write((int)BCSVType.Strings, Endian.Big);
+                    writer.Write(1, Endian.Big);
+                    writer.Write(0, Endian.Big);
+                    var capElement = root.GetElementsByTagName("Caption");
+                    for (int i = 0; i < count; i++)
+                    {
+                        XmlElement elem = (XmlElement)capElement[i];
+                        if (elem.HasAttribute("Hash") && !elem.HasAttribute("Name"))
+                            writer.Write(Int32.Parse(elem.Attributes["Hash"].Value, System.Globalization.NumberStyles.HexNumber), Endian.Big);
+                        else if (!elem.HasAttribute("Hash") && elem.HasAttribute("Name"))
+                            writer.Write(CRC32.Compute(elem.Attributes["Name"].Value), Endian.Big);
+                    }
+                    uint offset = 0;
+                    for (int i = 0; i < count; i++)
+                    {
+                        XmlElement elem = (XmlElement)capElement[i];
+                        writer.Write(offset, Endian.Big);
+                        offset += (uint)elem.InnerText.Length + 1;
+                    }
+                    for (int i = 0; i < count; i++)
+                    {
+                        XmlElement elem = (XmlElement)capElement[i];
+                        var bytes = Encoding.BigEndianUnicode.GetBytes(elem.InnerText);
+                        writer.Write(bytes);
+                        writer.Write((short)0);
+                    }
                 }
                 else if (typeAttr == BCSVType.Cutscene.ToString())
                 {
@@ -140,7 +164,7 @@ namespace BRB_BCSV
                     writer.Write(2, Endian.Big);
                     writer.Write(1, Endian.Big);
                     var capElement = root.GetElementsByTagName("Caption");
-                    for (int i = 0; i < count; i++) 
+                    for (int i = 0; i < count; i++)
                     {
                         XmlElement elem = (XmlElement)capElement[i];
                         if (elem.HasAttribute("FrameStart"))
@@ -164,6 +188,7 @@ namespace BRB_BCSV
                 writer.Close();
             }
         }
+
         public string CheckHash(uint _hash)
         {
             uint hash;
