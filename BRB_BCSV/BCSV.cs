@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.IO;
+using System.Reflection.PortableExecutable;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Unicode;
 using System.Xml;
 
 namespace BRB_BCSV
@@ -16,181 +15,213 @@ namespace BRB_BCSV
     {
         public uint EntryCount;
         public BCSVType Type;
-        public int field_08;
-        public int field_0C;
-        public int field_10;
         private bool showStringLookupInfo = true;
 
         public List<uint> NameHash = new List<uint>();
         public List<string> Name = new List<string>();
-        public List<uint> StringOffset = new List<uint>();
         public List<string> Text = new List<string>();
         public List<uint> FrameStart = new List<uint>();
         public List<uint> FrameEnd = new List<uint>();
-        public void ReadBCSV(string filename)
+        public void BCSVToXML(string filename)
         {
-            using (NativeReader reader = new(new FileStream(filename, FileMode.Open)))
+            NativeReader reader = new(new FileStream(filename, FileMode.Open));
+            reader.IsBigEndian = true;
+
+            EntryCount = reader.ReadUInt32();
+            Type = (BCSVType)reader.ReadUInt32();
+
+            if (Type == BCSVType.Strings)
             {
-                EntryCount = reader.ReadUInt(Endian.Big);
-                Type = (BCSVType)reader.ReadUInt(Endian.Big);
-                XmlDocument doc = new XmlDocument();
-                var element1 = doc.CreateElement("Captions");
-                XmlAttribute typeAttr;
-                element1.SetAttribute("Type", Type.ToString());
-                doc.AppendChild(element1);
-                if (Type == BCSVType.Strings)
-                {
-                    field_08 = reader.ReadInt(Endian.Big);
-                    field_0C = reader.ReadInt(Endian.Big);
-                    for (int i = 0; i < EntryCount; i++)
-                    {
-                        NameHash.Add(new uint());
-                        Name.Add(new string(""));
-                        NameHash[i] = reader.ReadUInt(Endian.Big);
-                        Name[i] = CheckHash(NameHash[i]);
-                    }
-                    for (int i = 0; i < EntryCount; i++)
-                    {
-                        StringOffset.Add(new uint());
-                        StringOffset[i] = reader.ReadUInt(Endian.Big);
-                    }
-                    for (int i = 0; i < EntryCount; i++)
-                    {
-                        Text.Add(new string(""));
-                        Text[i] = reader.ReadBigEndianUnicodeString();
-                    }
-                    for (int i = 0; i < EntryCount; i++)
-                    {
-                        var capElement = doc.CreateElement("Caption");
-                        XmlAttribute attr;
-                        if (Name[i] == null)
-                            capElement.SetAttribute("Hash", NameHash[i].ToString("X8"));
-                        else
-                            capElement.SetAttribute("Name", Name[i]);
-                        var captext = doc.CreateTextNode(Text[i]);
-                        capElement.AppendChild(captext);
-                        element1.AppendChild(capElement);
-                    }
-                    var outname = "\\" + Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[1]) + ".xml";
-                    doc.Save(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + outname);
-                }
-                else if (Type == BCSVType.Cutscene)
-                {
-                    field_08 = reader.ReadInt(Endian.Big);
-                    field_0C = reader.ReadInt(Endian.Big);
-                    field_10 = reader.ReadInt(Endian.Big);
-                    for (int i = 0; i < EntryCount; i++)
-                    {
-                        FrameStart.Add(new uint());
-                        FrameStart[i] = reader.ReadUInt(Endian.Big);
-                    }
-                    for (int i = 0; i < EntryCount; i++)
-                    {
-                        FrameEnd.Add(new uint());
-                        FrameEnd[i] = reader.ReadUInt(Endian.Big);
-                    }
-                    for (int i = 0; i < EntryCount; i++)
-                    {
-                        NameHash.Add(new uint());
-                        Name.Add(new string(""));
-                        NameHash[i] = reader.ReadUInt(Endian.Big);
-                        Name[i] = CheckHash(NameHash[i]);
-                    }
-                    for (int i = 0; i < EntryCount; i++)
-                    {
-                        var capElement = doc.CreateElement("Caption");
-                        XmlAttribute attr;
-                        if (Name[i] == null)
-                            capElement.SetAttribute("Hash", NameHash[i].ToString("X8"));
-                        else capElement.SetAttribute("Name", Name[i]);
+                // Always 0x0000000100000000;
+                reader.ReadInt64();
 
-                        capElement.SetAttribute("FrameStart", FrameStart[i].ToString());
-                        capElement.SetAttribute("FrameEnd", FrameEnd[i].ToString());
-                        element1.AppendChild(capElement);
-                    }
-                    var outname = "\\" + Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[1]) + ".xml";
-                    doc.Save(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + outname);
+                // Read hashes and names
+                for (int i = 0; i < EntryCount; i++)
+                {
+                    NameHash.Add(reader.ReadUInt32());
+                    Name.Add(CheckHash(NameHash[i]));
                 }
 
+                // Skipping offset table
+                for (int i = 0; i < EntryCount; i++)
+                    reader.ReadUInt32();
+
+                // Read Unicode text
+                for (int i = 0; i < EntryCount; i++)
+                    Text.Add(ReadBEUnicodeString(reader));
+            }
+            else if (Type == BCSVType.Cutscene)
+            {
+                reader.ReadInt64(); // Always 0x0000000200000002;
+                reader.ReadInt32(); // Always 0x00000001;
+
+                // Read FrameStart
+                for (int i = 0; i < EntryCount; i++)
+                    FrameStart.Add(reader.ReadUInt32());
+
+                // Read FrameEnd
+                for (int i = 0; i < EntryCount; i++)
+                    FrameEnd.Add(reader.ReadUInt32());
+
+                // Read hashes and names
+                for (int i = 0; i < EntryCount; i++)
+                {
+                    NameHash.Add(reader.ReadUInt32());
+                    Name.Add(CheckHash(NameHash[i]));
+                }    
             }
 
-        }
-        public void WriteBCSV(string filename)
-        {
+            // Create XML document
+            var xmlWriterSettings = new XmlWriterSettings { Indent = true };
 
-            XmlDocument doc = new XmlDocument();
-            doc.Load(filename);
-            var root = doc.DocumentElement;
-            if (root == null || root.Name != "Captions")
+            using var writer = XmlWriter.Create(Path.GetDirectoryName(filename) + "\\" +
+            Path.GetFileNameWithoutExtension(filename) + ".xml", xmlWriterSettings);
+
+            writer.WriteStartDocument();
+
+            writer.WriteStartElement("Captions");
+
+            writer.WriteAttributeString("Type", Type.ToString());
+
+            for (int i = 0; i < EntryCount; i++)
+            {
+                writer.WriteStartElement("Caption");
+
+                if (Name[i] == null)
+                     writer.WriteAttributeString("Hash", NameHash[i].ToString("X8"));
+                else writer.WriteAttributeString("Name", Name[i]);
+
+                if (Type == BCSVType.Strings)
+                    writer.WriteString(Text[i].Replace("\n", "\\n"));
+                else if (Type == BCSVType.Cutscene)
+                {
+                    writer.WriteAttributeString("FrameStart", FrameStart[i].ToString());
+                    writer.WriteAttributeString("FrameEnd", FrameEnd[i].ToString());
+                }
+
+                writer.WriteEndElement();
+            }
+
+            writer.WriteEndElement();
+            writer.WriteEndDocument();
+            writer.Close();
+
+            return;
+        }
+        public void XMLToBCSV(string filename)
+        {
+            string filePath = Path.GetDirectoryName(filename) + "\\" + Path.GetFileNameWithoutExtension(filename);
+                     
+            // Reading XML File
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.Load(filePath + ".xml");
+            XmlElement? xRoot = xDoc.DocumentElement;
+
+            if (xRoot != null && xRoot.Name  == "Captions")
+            {
+                EntryCount = (uint)xRoot.ChildNodes.Count;
+                foreach (XmlElement node in xRoot)
+                {
+                    if (node.Name == "Caption")
+                    {
+                        // If caption have hash attribute we parsing it and put in file
+                        // Else we computing hash for caption name
+                        if (node.HasAttribute("Hash") && !node.HasAttribute("Name"))
+                            NameHash.Add(uint.Parse(node.Attributes["Hash"]!.Value, System.Globalization.NumberStyles.HexNumber));
+                        else if (!node.HasAttribute("Hash") && node.HasAttribute("Name"))
+                            NameHash.Add(CRC32.Compute(node.Attributes["Name"]!.Value));
+
+                        if (xRoot.Attributes["Type"]!.Value == BCSVType.Strings.ToString())
+                        {
+                            Type = BCSVType.Strings;
+                            Text.Add(node.InnerText);
+                        }
+                        else if (xRoot.Attributes["Type"]!.Value == BCSVType.Cutscene.ToString())
+                        {
+                            Type = BCSVType.Cutscene;
+                            FrameStart.Add(uint.Parse(node.Attributes["FrameStart"]!.Value));
+                            FrameEnd.Add(uint.Parse(node.Attributes["FrameEnd"]!.Value));
+                        }
+                    }
+                }
+            }
+            else
             {
                 Console.WriteLine("Not captions xml file.\n");
                 return;
             }
-            var typeAttr = root.GetAttribute("Type");
-            int count = root.SelectNodes("Caption").Count;
-            var outname = "\\" + Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[1]) + ".bcsv";
-            using (NativeWriter writer = new(new FileStream(Path.GetDirectoryName(Environment.GetCommandLineArgs()[1]) + outname, FileMode.Create)))
+
+            using (NativeWriter writer = new (File.Open(filePath + ".bcsv", FileMode.OpenOrCreate)))
             {
-                writer.Write(count, Endian.Big);
-                if (typeAttr == BCSVType.Strings.ToString())
+                writer.IsBigEndian = true;
+
+                writer.Write(EntryCount);
+                writer.Write((int)Type);
+
+                if (Type == BCSVType.Cutscene)
                 {
-                    writer.Write((int)BCSVType.Strings, Endian.Big);
-                    writer.Write(1, Endian.Big);
-                    writer.Write(0, Endian.Big);
-                    var capElement = root.GetElementsByTagName("Caption");
-                    for (int i = 0; i < count; i++)
-                    {
-                        XmlElement elem = (XmlElement)capElement[i];
-                        if (elem.HasAttribute("Hash") && !elem.HasAttribute("Name"))
-                            writer.Write(Int32.Parse(elem.Attributes["Hash"].Value, System.Globalization.NumberStyles.HexNumber), Endian.Big);
-                        else if (!elem.HasAttribute("Hash") && elem.HasAttribute("Name"))
-                            writer.Write(CRC32.Compute(elem.Attributes["Name"].Value), Endian.Big);
-                    }
+                    writer.Write(0x0000000200000002);
+                    writer.Write(0x00000001);
+
+                    // Write FrameStart
+                    for (int i = 0; i < EntryCount; i++)
+                        writer.Write(FrameStart[i]);
+
+                    // Write FrameEnd
+                    for (int i = 0; i < EntryCount; i++)
+                        writer.Write(FrameEnd[i]);
+
+                    // Write hashes
+                    for (int i = 0; i < EntryCount; i++)
+                        writer.Write(NameHash[i]);
+                }
+                else if (Type == BCSVType.Strings)
+                {
+                    writer.Write(0x0000000100000000);
+
+                    // Write hashes
+                    for (int i = 0; i < EntryCount; i++)
+                        writer.Write(NameHash[i]);
+
+                    // Write offsets
                     uint offset = 0;
-                    for (int i = 0; i < count; i++)
+                    for (int i = 0; i < EntryCount; i++)
                     {
-                        XmlElement elem = (XmlElement)capElement[i];
-                        writer.Write(offset, Endian.Big);
-                        offset += (uint)elem.InnerText.Length + 1;
+                        writer.Write(offset);
+                        Text[i] = Text[i].Replace("\\n", "\n");
+                        offset += (uint)Text[i].Length + 1;
                     }
-                    for (int i = 0; i < count; i++)
+
+                    // Write text
+                    for (int i = 0; i < EntryCount; i++)
                     {
-                        XmlElement elem = (XmlElement)capElement[i];
-                        var bytes = Encoding.BigEndianUnicode.GetBytes(elem.InnerText);
-                        writer.Write(bytes);
+                        writer.Write(Encoding.BigEndianUnicode.GetBytes(Text[i]));
                         writer.Write((short)0);
                     }
                 }
-                else if (typeAttr == BCSVType.Cutscene.ToString())
-                {
-                    writer.Write((int)BCSVType.Cutscene, Endian.Big);
-                    writer.Write(2, Endian.Big);
-                    writer.Write(2, Endian.Big);
-                    writer.Write(1, Endian.Big);
-                    var capElement = root.GetElementsByTagName("Caption");
-                    for (int i = 0; i < count; i++)
-                    {
-                        XmlElement elem = (XmlElement)capElement[i];
-                        if (elem.HasAttribute("FrameStart"))
-                            writer.Write(Int32.Parse(elem.Attributes["FrameStart"].Value), Endian.Big);
-                    }
-                    for (int i = 0; i < count; i++)
-                    {
-                        XmlElement elem = (XmlElement)capElement[i];
-                        if (elem.HasAttribute("FrameEnd"))
-                            writer.Write(Int32.Parse(elem.Attributes["FrameEnd"].Value), Endian.Big);
-                    }
-                    for (int i = 0; i < count; i++)
-                    {
-                        XmlElement elem = (XmlElement)capElement[i];
-                        if (elem.HasAttribute("Hash") && !elem.HasAttribute("Name"))
-                            writer.Write(Int32.Parse(elem.Attributes["Hash"].Value, System.Globalization.NumberStyles.HexNumber), Endian.Big);
-                        else if (!elem.HasAttribute("Hash") && elem.HasAttribute("Name"))
-                            writer.Write(CRC32.Compute(elem.Attributes["Name"].Value), Endian.Big);
-                    }
-                }
+
                 writer.Close();
             }
+
+            return;
+        }
+
+        public string ReadBEUnicodeString(NativeReader stream)
+        {
+            var chars = new List<byte>();
+
+            while (true)
+            {
+                byte b1 = stream.ReadByte();
+                byte b2 = stream.ReadByte();
+                if (b1 == 0 && b2 == 0)
+                    break;
+
+                chars.Add(b1);
+                chars.Add(b2);
+            }
+
+            return Encoding.BigEndianUnicode.GetString(chars.ToArray());
         }
 
         public string CheckHash(uint _hash)

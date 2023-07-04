@@ -1,151 +1,131 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Text;
 
-namespace BRB_BCSV
+namespace BRB_BCSV;
+
+public class NativeWriter : BinaryWriter
 {
-    public class NativeWriter : BinaryWriter
+    public NativeWriter(Stream inStream)
+        : base(inStream) { }
+
+    public NativeWriter(Stream inStream, Encoding encoding)
+        : base(inStream, encoding) { }
+
+    public NativeWriter(Stream inStream, Encoding encoding, bool leaveOpen)
+        : base(inStream, encoding, leaveOpen) { }
+
+    public bool IsBigEndian { get; set; }
+
+    public override void Write(decimal value)
     {
-        public long Position { get => BaseStream.Position; set => BaseStream.Position = value; }
-        public long Length => BaseStream.Length;
-
-        public NativeWriter(Stream inStream, bool leaveOpen = false, bool wide = false)
-            : base(inStream, (wide) ? Encoding.Unicode : Encoding.Default, leaveOpen)
+        Span<byte> buffer = stackalloc byte[sizeof(decimal)];
+        unsafe
         {
-        }
-
-        public void Write(Guid value, Endian endian)
-        {
-            if (endian == Endian.Big)
+            fixed (byte* p = &buffer.GetPinnableReference())
             {
-                byte[] b = value.ToByteArray();
-                Write(b[3]); Write(b[2]); Write(b[1]); Write(b[0]);
-                Write(b[5]); Write(b[4]);
-                Write(b[7]); Write(b[6]);
-                for (int i = 0; i < 8; i++)
-                    Write(b[8 + i]);
+                Span<int> bufferInts = new(p, buffer.Length / sizeof(int));
+                decimal.GetBits(value, bufferInts);
             }
-            else
-                Write(value);
         }
 
-        public void Write(short value, Endian endian)
+        if (IsBigEndian == BitConverter.IsLittleEndian)
         {
-            if (endian == Endian.Big)
-                Write((short)((ushort)(((value & 0xFF) << 8) | ((value & 0xFF00) >> 8))));
-            else
-                Write(value);
+            for (var i = 0; i < buffer.Length; i += sizeof(int))
+                buffer.Slice(i, i + sizeof(int)).Reverse();
         }
 
-        public void Write(ushort value, Endian endian)
-        {
-            if (endian == Endian.Big)
-                Write(((ushort)(((value & 0xFF) << 8) | ((value & 0xFF00) >> 8))));
-            else
-                Write(value);
-        }
+        OutStream.Write(buffer);
+    }
 
-        public void Write(int value, Endian endian)
-        {
-            if (endian == Endian.Big)
-                Write(((value & 0xFF) << 24) | ((value & 0xFF00) << 8) | ((value >> 8) & 0xFF00) | ((value >> 24) & 0xFF));
-            else
-                Write(value);
-        }
+    public override void Write(Half value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(ushort)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteHalfBigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteHalfLittleEndian(buffer, value);
+        OutStream.Write(buffer);
+    }
 
-        public void Write(uint value, Endian endian)
-        {
-            if (endian == Endian.Big)
-                Write(((value & 0xFF) << 24) | ((value & 0xFF00) << 8) | ((value >> 8) & 0xFF00) | ((value >> 24) & 0xFF));
-            else
-                Write(value);
-        }
+    public override void Write(float value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(float)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteSingleBigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteSingleLittleEndian(buffer, value);
+        OutStream.Write(buffer);
+    }
 
-        public void Write(long value, Endian endian)
-        {
-            if (endian == Endian.Big)
-            {
-                Write(((long)((value & 0xFF) << 56) | ((value & 0xFF00) << 40) | ((value & 0xFF0000) << 24) | ((value & 0xFF000000) << 8))
-                    | ((long)((value >> 8) & 0xFF000000) | ((value >> 24) & 0xFF0000) | ((value >> 40) & 0xFF00) | ((value >> 56) & 0xFF)));
-            }
-            else
-                Write(value);
-        }
+    public override void Write(double value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(double)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteDoubleBigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteDoubleLittleEndian(buffer, value);
+        OutStream.Write(buffer);
+    }
 
-        public void Write(ulong value, Endian endian)
-        {
-            if (endian == Endian.Big)
-            {
-                Write(((ulong)((value & 0xFF) << 56) | ((value & 0xFF00) << 40) | ((value & 0xFF0000) << 24) | ((value & 0xFF000000) << 8))
-                    | ((ulong)((value >> 8) & 0xFF000000) | ((value >> 24) & 0xFF0000) | ((value >> 40) & 0xFF00) | ((value >> 56) & 0xFF)));
-            }
-            else
-                Write(value);
-        }
+    public override void Write(short value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(short)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteInt16BigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteInt16LittleEndian(buffer, value);
+        OutStream.Write(buffer);
+    }
 
-        private void WriteString(string str)
-        {
-            for (int i = 0; i < str.Length; i++)
-                Write(str[i]);
-        }
+    public override void Write(ushort value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(ushort)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteUInt16BigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteUInt16LittleEndian(buffer, value);
+        OutStream.Write(buffer);
+    }
 
-        public void WriteNullTerminatedString(string str)
-        {
-            WriteString(str);
-            Write((char)0x00);
-        }
+    public override void Write(int value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(int)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteInt32BigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteInt32LittleEndian(buffer, value);
+        OutStream.Write(buffer);
+    }
 
-        public void WriteSizedString(string str)
-        {
-            Write7BitEncodedInt(str.Length);
-            WriteString(str);
-        }
+    public override void Write(uint value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(uint)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteUInt32BigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteUInt32LittleEndian(buffer, value);
+        OutStream.Write(buffer);
+    }
 
-        public void WriteFixedSizedString(string str, int size)
-        {
-            WriteString(str);
-            for (int i = 0; i < (size - str.Length); i++)
-                Write((char)0x00);
-        }
+    public override void Write(long value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(long)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteInt64BigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteInt64LittleEndian(buffer, value);
+        OutStream.Write(buffer);
+    }
 
-        public new void Write7BitEncodedInt(int value)
-        {
-            uint v = (uint)value;
-            while (v >= 0x80)
-            {
-                Write((byte)(v | 0x80));
-                v >>= 7;
-            }
-            Write((byte)v);
-        }
-
-        public void Write7BitEncodedLong(long value)
-        {
-            ulong v = (ulong)value;
-            while (v >= 0x80)
-            {
-                Write((byte)(v | 0x80));
-                v >>= 7;
-            }
-            Write((byte)v);
-        }
-
-        public void Write(Guid value) => Write(value.ToByteArray(), 0, 16);
-
-
-        public void WriteLine(string str)
-        {
-            WriteString(str);
-            Write((char)0x0D);
-            Write((char)0x0A);
-        }
-
-        public void WritePadding(byte alignment)
-        {
-            while (Position % alignment != 0)
-                Write((byte)0x00);
-        }
-
-        public byte[] ToByteArray() => BaseStream is MemoryStream stream ? stream.ToArray() : null;
+    public override void Write(ulong value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(ulong)];
+        if (IsBigEndian)
+            BinaryPrimitives.WriteUInt64BigEndian(buffer, value);
+        else
+            BinaryPrimitives.WriteUInt64LittleEndian(buffer, value);
+        OutStream.Write(buffer);
     }
 }
