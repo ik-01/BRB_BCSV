@@ -92,9 +92,13 @@ bestiaryS4I8Desc
 bestiaryS4I8Name
 bestiaryS4I9Desc
 bestiaryS4I9Name
+galleryMoviesS1I10Name
+galleryMoviesS1I11Name
 galleryMoviesS1I12Name
 galleryMoviesS1I13Name
 galleryMoviesS1I14Name
+galleryMoviesS1I15Name
+galleryMoviesS1I16Name
 galleryMoviesS1I17Name
 galleryMoviesS1I18Name
 galleryMoviesS1I19Name
@@ -102,12 +106,20 @@ galleryMoviesS1I1Name
 galleryMoviesS1I20Name
 galleryMoviesS1I21Name
 galleryMoviesS1I22Name
+galleryMoviesS1I23Name
 galleryMoviesS1I24Name
+galleryMoviesS1I25Name
+galleryMoviesS1I26Name
+galleryMoviesS1I27Name
+galleryMoviesS1I28Name
+galleryMoviesS1I29Name
 galleryMoviesS1I2Name
 galleryMoviesS1I30Name
 galleryMoviesS1I31Name
+galleryMoviesS1I32Name
 galleryMoviesS1I33Name
 galleryMoviesS1I34Name
+galleryMoviesS1I35Name
 galleryMoviesS1I36Name
 galleryMoviesS1I37Name
 galleryMoviesS1I38Name
@@ -118,6 +130,7 @@ galleryMoviesS1I41Name
 galleryMoviesS1I42Name
 galleryMoviesS1I43Name
 galleryMoviesS1I44Name
+galleryMoviesS1I4Name
 galleryMoviesS1I5Name
 galleryMoviesS1I6Name
 galleryMoviesS1I7Name
@@ -4327,6 +4340,7 @@ Sounds:vo_level_04:L04_20472_0_Sonic_x_x_We-got-this
 Sounds:vo_level_04:L04_20473_1_Sonic_x_x_Lets-crush
 Sounds:vo_level_04:L04_20474_1_Sonic_x_x_We-did-it
 Sounds:vo_level_04:L04_20475_4_Knuckles_x_x_Thats-right
+Sounds:vo_level_04:L04_20476_1_Knuckles_x_x_Nobody-ever
 Sounds:vo_level_04:L04_20477_1_Knuckles_4-11_2_Who-brought
 Sounds:vo_level_04:L04_20478_3_Knuckles_x_x_You-said-we
 Sounds:vo_level_04:L04_20479_3_Sonic_x_x_Calm-down-N
@@ -4441,6 +4455,7 @@ Sounds:vo_level_04:L04_20608_1_Knuckles_x_x_Too-bad-no-o
 Sounds:vo_level_04:L04_20608_20_Knuckles_x_x_Too-bad-no-o
 Sounds:vo_level_04:L04_20609_1_Knuckles_x_x_Going-up
 Sounds:vo_level_04:L04_20611_1_Knuckles_x_x_Ahhhhhhhhhhh
+Sounds:vo_level_04:L04_20612_20_Knuckles_x_x_One-day-we
 Sounds:vo_level_04:L04_20614_1_Knuckles_x_x_Love-the-las
 Sounds:vo_level_04:L04_20616_1_Knuckles_x_x_Better-than
 Sounds:vo_level_04:L04_20620_1_Knuckles_x_x_Upand-over
@@ -4753,6 +4768,7 @@ Sounds:vo_level_05:L05_05110_1_Knuckles_x_x_The-bridge-i
 Sounds:vo_level_05:L05_05111_1_Tails_x_x_He-is-destro
 Sounds:vo_level_05:L05_05112_1_Sonic_x_x_Look-Over-t
 Sounds:vo_level_05:L05_05113_1_Amy_x_x_Guys-there
+Sounds:vo_level_05:L05_05114_1_Knuckles_x_x_I-say-we-get
 Sounds:vo_level_05:L05_05115_1_Tails_x_x_There-is-a-w
 Sounds:vo_level_05:L05_05116_1_Sonic_x_x_We-need-to-g
 Sounds:vo_level_05:L05_05117_20_Amy_x_x_Does-anyone
@@ -5699,6 +5715,7 @@ Sounds:vo_level_07:L07_18163_1_Amy_x_x_This-is-gett
 Sounds:vo_level_07:L07_18166_1_Amy_x_x_Heads-up-Co
 Sounds:vo_level_07:L07_18167_1_Amy_x_x_Sop-dangerou
 Sounds:vo_level_07:L07_18170_1_Amy_x_x_Um-did-you
+Sounds:vo_level_07:L07_18171_1_Amy_x_x_I-know-that
 Sounds:vo_level_07:L07_18172_1_Eggman_x_x_Its-Dr-Egg
 Sounds:vo_level_07:L07_21000_1_Eggman_x_x_Giddy-up
 Sounds:vo_level_07:L07_21001_1_Eggman_x_x_Umf-umf-Umf
@@ -6736,6 +6753,14 @@ ui_CableUnplugged
 ui_CDKeyInvalid
 ui_click
 ui_Collectibles_Crowns
+ui_Collectibles_Crystal_01
+ui_Collectibles_Crystal_02
+ui_Collectibles_Crystal_03
+ui_Collectibles_Crystal_04
+ui_Collectibles_Crystal_05
+ui_Collectibles_Crystal_06
+ui_Collectibles_Crystal_07
+ui_Collectibles_Crystal_08
 ui_Collectibles_GlobalRings
 ui_Collectibles_PartChests
 ui_Collectibles_PowerGlyphs
@@ -6756,6 +6781,7 @@ ui_DeleteSlot_Confirm_Prompt
 ui_DeleteSlot_Confirm_Title
 ui_DeleteSlot_DeleteComplete
 ui_DeleteSlot_DeleteFailed
+ui_DeleteSlot_DeleteInProgress
 ui_DeleteSlot_Title
 ui_diag_continue
 ui_diag_delete
@@ -6764,6 +6790,14 @@ ui_diag_ok
 ui_diag_selectdevice
 ui_diag_yes
 ui_down
+ui_E3_Level_04_Desc
+ui_E3_Level_04_Title
+ui_E3_Level_06_Desc
+ui_E3_Level_06_Title
+ui_E3_Level_07_Desc
+ui_E3_Level_07_Title
+ui_E3_Road_Desc
+ui_E3_Road_Title
 ui_ExtremeMode_Title
 ui_ExtremeMode_Unlocked
 ui_ExtremeMode_Unlocked_Desc
@@ -6953,6 +6987,9 @@ ui_Options_Controls_Move
 ui_Options_Controls_P1_Title
 ui_Options_Controls_P2_Title
 ui_Options_Controls_Pause
+ui_Options_Controls_Roads_EvadeLeft
+ui_Options_Controls_Roads_EvadeRight
+ui_Options_Controls_Roads_Title
 ui_Options_Controls_Shake
 ui_Options_Controls_Show_Obj_Helpers
 ui_Options_Controls_Special_Attack
@@ -6969,6 +7006,10 @@ ui_Options_Controls_Title
 ui_Options_Controls_Vehicle_P2Aim
 ui_Options_Controls_Vehicle_P2Aim_WiiRemote
 ui_Options_Game_Button
+ui_Options_Game_Controls_Button
+ui_Options_Game_Flip_Control
+ui_Options_Game_Flip_Vehicle_Control
+ui_Options_Game_Rumble
 ui_Options_Game_Title
 ui_Options_Miiverse
 ui_Options_Miiverse_Failure_Retry_Prompt
@@ -7028,6 +7069,7 @@ ui_PG_RiskTaker_Title
 ui_PG_SpeedyCharge_Desc
 ui_PG_SpeedyCharge_Title
 ui_pickup
+ui_Player2_Join
 ui_Player2_Tether_Warning
 ui_ProblemWithParams
 ui_PSNUnavailable
@@ -7123,6 +7165,7 @@ ui_Tut_Amy_01
 ui_Tut_Amy_02
 ui_Tut_Amy_03
 ui_Tut_Amy_04
+ui_Tut_AVA_Eye
 ui_Tut_Boat_01
 ui_Tut_Boat_02
 ui_Tut_Boat_03
@@ -7190,6 +7233,7 @@ ui_Tut_Knuckles_04
 ui_Tut_Knuckles_05
 ui_Tut_Knuckles_06
 ui_Tut_Knuckles_07
+ui_Tut_Logbook
 ui_Tut_P2Road_01
 ui_Tut_P2Road_02
 ui_Tut_P2Road_03
@@ -7199,6 +7243,7 @@ ui_Tut_P2Veh_WiiRemote_02
 ui_Tut_Shineys_01
 ui_Tut_Shineys_02
 ui_Tut_Shineys_03
+ui_Tut_Shineys_04
 ui_Tut_Sonic_01
 ui_Tut_Sonic_02
 ui_Tut_Sonic_03
