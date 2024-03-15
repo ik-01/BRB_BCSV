@@ -1,31 +1,54 @@
-﻿namespace BRB_BCSV
-{
+﻿using System.Text.Json;
 
-    class Program
+namespace BRB_BCSV;
+
+class Program
+{
+    public static string GetOutput(string input, string extension)
     {
-        static BCSV bcsv = new BCSV();
-        public static void Main(string[] args)
+        if (extension == ".bcsv")
+            return Path.ChangeExtension(input,"json");
+        else return Path.ChangeExtension(input, "bcsv");
+    }
+    
+    public static void Main(string[] args)
+    {
+        if (args.Length != 0)
         {
-            if (args.Length != 0)
+            BCSV bcsv;
+            var input = args[0];
+            var extension = Path.GetExtension(input);
+
+            string output;
+            if (args.Length > 1)
+                output = args[1];
+            else output = GetOutput(input, extension);
+
+            if (!Path.IsPathFullyQualified(input))
+                input = Path.GetFullPath(input);
+
+            if (!Path.IsPathFullyQualified(output))
+                output = Path.Combine(Path.GetDirectoryName(input), Path.GetFileName(output));
+
+            if (extension == ".bcsv")
             {
-                var extension = Path.GetExtension(args[0]);
-                if (extension == ".bcsv")
-                    bcsv.BCSVToXML(args[0]);
-                else if (extension == ".xml")
-                    bcsv.XMLToBCSV(args[0]);
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
+                bcsv = new(input);
+                bcsv.WriteJSON(output);
             }
-            else
+            else if (extension == ".json")
             {
-                Console.WriteLine("BRB_BCSV - A tool for converting Sonic Boom: Rise of Lyric localization file to .xml and vice versa\n" +
-                                  "Created by ik-01\n\n" +
-                    "Usage: \n" + 
-                    "bcsv to xml: BRB_BCSV.exe file.bcsv\n" +
-                    "xml to bcsv: BRB_BCSV.exe file.xml\n");
-                Console.ReadKey();
+                bcsv = new(JsonDocument.Parse(File.OpenRead(input)));
+                bcsv.Write(output);
             }
+        }
+        else
+        {
+            Console.WriteLine("BRB_BCSV - A tool for converting Sonic Boom: Rise of Lyric localization file to .json and vice versa\n" +
+                              "Created by ik-01\n\n" +
+                "Usage: \n" +
+                "bcsv to json: BRB_BCSV.exe input.bcsv output.json\n" +
+                "json to bcsv: BRB_BCSV.exe input.json output.bcsv \n");
+            Console.ReadKey();
         }
     }
 }
-
