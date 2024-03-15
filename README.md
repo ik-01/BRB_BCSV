@@ -1,6 +1,6 @@
 # BRB_BCSV
- Tool for converting Sonic Boom: Rise or Lyric localization files to .xml and vice versa.
+ Tool for converting Sonic Boom: Rise or Lyric localization files to .json and vice versa.
  
 ## Credits
 
-CRC32 class from [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox) 
+[Amicitia.IO](https://github.com/tge-was-taken/Amicitia.IO) for better binary reading/writing support
