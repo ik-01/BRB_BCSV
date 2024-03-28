@@ -78,7 +78,7 @@ F292793F,ui_PG_DoubleTrouble_Desc
 4C598461,ui_PG_BigBang_Desc
 A9C98321,ui_PG_GlassJaw_Title
 FCBA2702,ui_PG_GlassJaw_Desc
-A55B15DC,
+A55B15DC,ui_PG_Reward_FirstTime_Title
 D837E2C9,ui_PG_Reward_FirstTime_Desc
 4D5B2611,ui_PG_Reward_Unlock_Title
 8C446DDA,
@@ -751,7 +751,7 @@ B4F442C3,
 53F3884A,ui_Player2_Join
 4E302B79,ui_Player2_Tether_Warning
 3A0A571F,ui_Tut_Logbook
-226D88EE,
+226D88EE,ui_Tut_Enerbeam_Disarm
 406E005F,
 253BD0C9,
 5A7A69CA,ui_E3_Level_07_Title
@@ -1555,7 +1555,7 @@ A66F71BA,Sounds:vo_hub2:HB2_23127_1_Sonic_x_x_And-still-st
 D8CBED81,Sounds:vo_hub2:HB2_23128_1_Tails_x_x_There-is-so
 2D727FBF,Sounds:vo_hub2:HB2_23129_1_Tails_x_x_ALTERNATE
 31B074B2,Sounds:vo_hub2:HB2_23130_1_Knuckles_x_x_I-feel-a-nee
-0DDACDA8,
+0DDACDA8,Sounds:vo_hub2:HB2_23131_1_Amy_x_x_Looks-like-I
 98A691AD,Sounds:vo_hub2:HB2_23132_1_Sonic_x_x_Its-not-the
 CF052573,Sounds:vo_hub2:HB2_23134_1_Knuckles_x_x_Ah-this-pla
 4EAC25F7,Sounds:vo_hub2:HB2_23135_1_Amy_x_x_Well-they-k
@@ -1642,7 +1642,7 @@ B5BD8397,Sounds:vo_global:G00_23235_1_Amy_x_x_Perfect-and
 99247A9D,Sounds:vo_global:G00_23237_1_Tails_x_x_Made-it-thro
 EE397DFD,Sounds:vo_global:G00_23238_20_Knuckles_x_x_Unstoppable
 20700781,Sounds:vo_global:G00_23239_1_Amy_x_x_Im-through
-BE3ACF65,
+BE3ACF65,Sounds:vo_global:G00_23240_20_Sonic_x_x_Rings-Nomn
 DA379DAA,Sounds:vo_global:G00_23241_1_Tails_x_x_Gotem-all
 F8908AB0,Sounds:vo_global:G00_23242_20_Knuckles_x_x_Who-got-all
 A05ED4E2,Sounds:vo_global:G00_23243_1_Amy_x_x_Ill-take-th
@@ -2094,9 +2094,9 @@ FCAA00F0,Sounds:vo_level_10:L10_14141_1_Amy_x_x_HammerHAM
 7DCDD58D,Sounds:vo_level_10:L10_14142_20_Lyric_x_x_You-arent-g
 55CD863D,Sounds:vo_level_10:L10_14143_1_Knuckles_x_x_RUN
 E2F83BB8,Sounds:vo_level_10:L10_14146_20_Knuckles_x_x_Tails-Tails
-0E0D2C22,
-C7D87746,
-11387C38,
+0E0D2C22,Sounds:vo_level_10:L10_14151_1_Tails_x_x_Knuckles-K
+C7D87746,Sounds:vo_level_10:L10_14152_1_Tails_x_x_Amy-Amy-Am
+11387C38,Sounds:vo_level_10:L10_14153_1_Tails_x_x_Sonic-Sonic
 5D3FBDAA,Sounds:vo_level_10:L10_14154_1_Sonic_x_x_Tails-Tails
 E195DA0E,Sounds:vo_level_10:L10_14155_1_Sonic_x_x_Knuckles-K
 2840816A,Sounds:vo_level_10:L10_14156_1_Sonic_x_x_Amy-Amy-Am
@@ -2336,7 +2336,7 @@ AD8F87E3,Sounds:vo_global:G00_15002_20_Sonic_x_x_You-even-try
 CD45CC34,Sounds:vo_global:G00_15004_20_Sonic_x_x_Yeah-Love-i
 1C972424,Sounds:vo_global:G00_15005_20_Sonic_x_x_One-more-rin
 A428B768,Sounds:vo_global:G00_15006_1_Sonic_x_x_Its-like-th
-3AABE399,
+3AABE399,Sounds:vo_global:G00_15007_1_Sonic_x_x_Rings-Nomn
 C6E04B8A,Sounds:vo_global:G00_15008_1_Sonic_x_x_Its-like-the
 49C65954,Sounds:vo_global:G00_15009_20_Sonic_x_x_Sorry-mine
 1BFD96D9,Sounds:vo_global:G00_15010_1_Knuckles_x_x_Come-to-Knuc
