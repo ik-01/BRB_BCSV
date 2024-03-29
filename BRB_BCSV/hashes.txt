@@ -306,7 +306,7 @@ A6DE6C3C,ui_SaveSlot_Corrupt_Title
 976D407B,ui_SaveSlot_Corrupt_Prompt
 5A48F952,ui_SaveSlot_SaveCreated
 D09EC3FD,ui_SaveSlot_OutOfMemory_Title
-7B78F2F2,
+7B78F2F2,ui_SaveSlot_OutOfMemory_Prompt
 8E088C52,
 3D4FDAC4,
 222D07CC,ui_MainMenu_Title
