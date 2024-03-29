@@ -322,7 +322,7 @@ E5CBDD7C,
 6DAF10F4,
 2AB5952B,ui_3DSConnect_Connection_Error
 3D2AA51A,ui_3DSConnect_Confirm_Title
-7BA7988B,
+7BA7988B,ui_3DSConnect_Confirm_Desc
 C73B2E5C,
 DAF51DB7,
 27F28408,
