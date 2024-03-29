@@ -302,8 +302,8 @@ E10578A6,ui_SaveSlot_CorruptedGame
 DE46EF65,ui_DeleteSlot_DeleteInProgress
 C4420A6F,ui_DeleteSlot_DeleteComplete
 2F3528A2,ui_DeleteSlot_DeleteFailed
-A6DE6C3C,
-976D407B,
+A6DE6C3C,ui_SaveSlot_Corrupt_Title
+976D407B,ui_SaveSlot_Corrupt_Prompt
 5A48F952,ui_SaveSlot_SaveCreated
 D09EC3FD,ui_SaveSlot_OutOfMemory_Title
 7B78F2F2,
