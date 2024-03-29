@@ -242,8 +242,8 @@ BD5EA2C1,ui_Options_Controls_Status
 9F6CF046,ui_Options_Controls_Roads_Title
 BF83D2A8,ui_Options_Controls_Roads_EvadeLeft
 2F6B5391,ui_Options_Controls_Roads_EvadeRight
-F83E789F,
-97914B34,
+F83E789F,ui_Options_Controls_Roads_ShakeLeft
+97914B34,ui_Options_Controls_Roads_ShakeRight
 22242E15,ui_Options_Controls_Vehicle_P2Aim
 2E5EA709,ui_Options_Controls_Vehicle_P2Aim_WiiRemote
 E9BA6480,
